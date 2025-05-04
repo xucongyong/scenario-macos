@@ -14,5 +14,13 @@
       { "type": "app", "name": "Trae", "display": 1, "layout": "right-half" },
       { "type": "close_browsers" },
       { "type": "url", "url": "http://aistudio.google.com/prompts", "display": 2, "layout": "right-half" }
+    ],
+    "show_markdown_notes": [
+            {
+              "type": "show_markdown_note",
+              "file_path": "fogg_behavior_model/Behavior_environment.md",
+              "width": 350,
+              "height": 450
+            }
     ]
 }
