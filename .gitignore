@@ -1,6 +1,7 @@
 *.pdf
 *.png
 node_modules
+dist
 markdown/0_inbox/*
 *.log
 tmp

@@ -1,16 +1,18 @@
 {
-  "Work": [
-    { "type": "app", "name": "Trae", "position": [550, 550], "size": [1000, 800] },
-    { "type": "app", "name": "Warp", "position": [1260, 10], "size": [800, 500] }
-  ],
-  "Decision": [
-    { "type": "close_browsers" },
-    { "type": "mute_volume" },
-    { "type": "url", "url": "https://www.xucongyong.com/decision" },
-    { "type": "url", "url": "http://aistudio.google.com/prompts" },
-    { "type": "app", "name": "Obsidian", "position": [100, 100], "size": [800, 600] },
-    { "type": "open_file_in_app", "appName": "Obsidian", "filePath": "/Users/xucongyong/mathematics/xucongyong.com/markdown/canvas.canvas" },
-    { "type": "open_file_in_app", "appName": "Obsidian", "filePath": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior.canvas" },
-    { "type": "app", "name": "Trae" }
-  ]
+
+    "Decision": [
+      { "type": "app", "name": "Trae", "display": 1,"fullscreen": true },
+      { "type": "app", "name": "Obsidian", "display": 1, "fullscreen": true },
+      { "type": "open_file_in_app", "appName": "Obsidian", "filePath": "/Users/xucongyong/mathematics/xucongyong.com/markdown/canvas.canvas" },
+      { "type": "open_file_in_app", "appName": "Obsidian", "filePath": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior.canvas" },
+      { "type": "close_browsers" },
+      { "type": "url", "url": "https://www.xucongyong.com/decision", "display": 2, "layout": "left-half" },
+      { "type": "url", "url": "http://aistudio.google.com/prompts", "display": 2, "layout": "right-half" },
+      { "type": "url", "url": "https://www.youtube.com/watch?v=fLi0EJfi_vg&list=PLARyBzvtoHk0Qtw6evpVBB4cvgtygDDp7", "display": 2, "layout": "left-half" }
+    ],
+    "English": [
+      { "type": "app", "name": "Trae", "display": 1, "layout": "right-half" },
+      { "type": "close_browsers" },
+      { "type": "url", "url": "http://aistudio.google.com/prompts", "display": 2, "layout": "right-half" }
+    ]
 }
