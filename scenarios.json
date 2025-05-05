@@ -1,26 +1,91 @@
 {
-
-    "Decision": [
-      { "type": "app", "name": "Trae", "display": 1,"fullscreen": true },
-      { "type": "app", "name": "Obsidian", "display": 1, "fullscreen": true },
-      { "type": "open_file_in_app", "appName": "Obsidian", "filePath": "/Users/xucongyong/mathematics/xucongyong.com/markdown/canvas.canvas" },
-      { "type": "open_file_in_app", "appName": "Obsidian", "filePath": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior.canvas" },
-      { "type": "close_browsers" },
-      { "type": "url", "url": "https://www.xucongyong.com/decision", "display": 2, "layout": "left-half" },
-      { "type": "url", "url": "http://aistudio.google.com/prompts", "display": 2, "layout": "right-half" },
-      { "type": "url", "url": "https://www.youtube.com/watch?v=fLi0EJfi_vg&list=PLARyBzvtoHk0Qtw6evpVBB4cvgtygDDp7", "display": 2, "layout": "left-half" }
-    ],
-    "English": [
-      { "type": "app", "name": "Trae", "display": 1, "layout": "right-half" },
-      { "type": "close_browsers" },
-      { "type": "url", "url": "http://aistudio.google.com/prompts", "display": 2, "layout": "right-half" }
-    ],
-    "show_markdown_notes": [
+  "scenarios": [
+    {
+      "name": "Behavior Models",
+      "actions": [
+        {
+          "type": "menu",
+          "items": [
             {
-              "type": "show_markdown_note",
-              "file_path": "fogg_behavior_model/Behavior_environment.md",
-              "width": 350,
-              "height": 450
+              "name": "Fogg模型",
+              "type": "submenu",
+              "items": [
+                {
+                  "name": "行动环境",
+                  "actions": [
+                    {
+                      "type": "show_markdown_note",
+                      "file_path": "utils/fogg_behavior_model/Behavior_environment.md",
+                      "width": 350,
+                      "height": 450
+                    }
+                  ]
+                },
+                {
+                  "name": "模型核心",
+                  "actions": [
+                    {
+                      "type": "show_markdown_note",
+                      "file_path": "utils/fogg_behavior_model/fogg_behavior_model.md",
+                      "width": 350,
+                      "height": 450
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Action",
+              "type": "submenu",
+              "items": [
+                {
+                  "name": "行为清单",
+                  "actions": [
+                    {
+                      "type": "show_markdown_note",
+                      "file_path": "utils/fogg_behavior_model/behavior_hook_list.md",
+                      "width": 350,
+                      "height": 450
+                    }
+                  ]
+                },
+                {
+                  "name": "行为推荐",
+                  "actions": [
+                    {
+                      "type": "show_markdown_note",
+                      "file_path": "utils/fogg_behavior_model/behavior_recommder.md",
+                      "width": 350,
+                      "height": 450
+                    }
+                  ]
+                }
+              ]
             }
-    ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Decision",
+      "actions": [
+        { "type": "app", "name": "Trae", "display": 1,"fullscreen": true },
+        { "type": "app", "name": "Obsidian", "display": 1, "fullscreen": true },
+        { "type": "open_file_in_app", "appName": "Obsidian", "filePath": "/Users/xucongyong/mathematics/xucongyong.com/markdown/canvas.canvas" },
+        { "type": "open_file_in_app", "appName": "Obsidian", "filePath": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior.canvas" },
+        { "type": "close_browsers" },
+        { "type": "url", "url": "https://www.xucongyong.com/decision", "display": 2, "layout": "left-half" },
+        { "type": "url", "url": "http://aistudio.google.com/prompts", "display": 2, "layout": "right-half" },
+        { "type": "url", "url": "https://www.youtube.com/watch?v=fLi0EJfi_vg&list=PLARyBzvtoHk0Qtw6evpVBB4cvgtygDDp7", "display": 2, "layout": "left-half" }
+      ]
+    },
+    {
+      "name": "English",
+      "actions": [
+        { "type": "app", "name": "Trae", "display": 1, "layout": "right-half" },
+        { "type": "close_browsers" },
+        { "type": "url", "url": "http://aistudio.google.com/prompts", "display": 2, "layout": "right-half" }
+      ]
+    }
+  ]
 }

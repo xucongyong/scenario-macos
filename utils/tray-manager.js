@@ -1,5 +1,5 @@
 // utils/tray-manager.js
-const { Tray, Menu, nativeImage, screen, dialog, app } = require('electron');
+const { Tray, Menu, nativeImage, screen, dialog, app, BrowserWindow } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -52,10 +52,12 @@ function createTray(scenarioList, runScenarioCallback) {
     }
   }));
 
-  const contextMenuTemplate = [
-    ...scenarioMenuItems,
-    { type: 'separator' },
-    {
+  
+
+const contextMenuTemplate = [
+  ...scenarioMenuItems,
+  { type: 'separator' },
+  {
       label: 'Check Display Info',
       click: () => {
         const displays = screen.getAllDisplays();

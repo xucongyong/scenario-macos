@@ -176,3 +176,20 @@ app.on('activate', (event, hasVisibleWindows) => {
 // 重构 runScenario 为一个独立的异步函数
 // 导入场景运行器模块
 
+// --- IPC Handler for Reading Markdown --- 
+ipcMain.handle('read-markdown-file', async (event, filePath) => {
+  try {
+    // 解析文件路径，始终相对于项目根目录 (app.getAppPath())
+    const absolutePath = path.resolve(app.getAppPath(), filePath);
+    console.log(`IPC: Reading markdown file requested by renderer: ${absolutePath}`);
+    const markdownContent = await fs.promises.readFile(absolutePath, 'utf8');
+    const htmlContent = marked(markdownContent);
+    return htmlContent; // 返回渲染后的 HTML
+  } catch (error) {
+    console.error(`IPC: Error reading markdown file ${filePath}:`, error);
+    // 向渲染进程抛出错误，以便在界面上显示
+    // 使用 Error 对象包装错误信息
+    throw new Error(`无法读取文件: ${error.message}`); 
+  }
+});
+
