@@ -16,16 +16,7 @@ let noteIdCounter = 0;
  * @returns {Promise<void>}
  */
 async function runScenario(scenarioName, scenarioList) {
-  console.log(`Received request to run scenario: ${scenarioName}`);
 
-  // Define default window dimensions and position
-  const defaultWidth = 800;
-  const defaultHeight = 600;
-  const defaultX = 100; // Example default X position
-  const defaultY = 100; // Example default Y position
-  // 注意：BrowserWindow 的创建已移至需要它的地方（例如 handleMenuAction 或其他动作处理逻辑）
-  // 以确保在 app ready 之后创建。
-  // 从scenarioList中查找对应的场景对象
   const scenario = scenarioList.find(s => s.name === scenarioName);
 
   if (!scenario || !Array.isArray(scenario.actions)) {
@@ -977,8 +968,8 @@ async function runScenario(scenarioName, scenarioList) {
   // Define default window dimensions and position
   const defaultWidth = 800;
   const defaultHeight = 600;
-  const defaultX = 100; // Example default X position
-  const defaultY = 100; // Example default Y position
+  const defaultX = 0; // Example default X position
+  const defaultY = 0; // Example default Y position
 
   // 从scenarioList中查找对应的场景对象
   const scenario = scenarioList.find(s => s.name === scenarioName);
@@ -990,28 +981,46 @@ async function runScenario(scenarioName, scenarioList) {
 
   const actions = scenario.actions;
   let results = [];
-  let noteWindow = null; // 将 noteWindow 的创建移到需要时
 
   for (const action of actions) {
     try {
       // --- 处理 menu 动作 --- 
       if (action.type === 'menu' && Array.isArray(action.items)) {
-        console.log(`Processing menu action for scenario: ${scenarioName}`);
         // 仅在需要显示菜单时创建窗口
         let noteWindow = markdownNoteWindows.get(scenarioName); // 尝试获取现有窗口
         if (!noteWindow || noteWindow.isDestroyed()) {
            const firstItemAction = action.items[0]?.actions?.find(a => a.type === 'show_markdown_note');
            const width = firstItemAction?.width || defaultWidth;
            const height = firstItemAction?.height || defaultHeight;
-           const x = firstItemAction?.x || defaultX;
-           const y = firstItemAction?.y || defaultY;
+
+           // --- Calculate position based on display and top-right corner --- 
+           const displays = screen.getAllDisplays();
+           let targetDisplay = screen.getPrimaryDisplay(); // Default to primary
+           const specifiedDisplayIndex = firstItemAction?.display;
+
+           if (specifiedDisplayIndex !== undefined) {
+             const displayIndex = parseInt(specifiedDisplayIndex, 10);
+             if (!isNaN(displayIndex) && displayIndex >= 0 && displayIndex < displays.length) {
+               targetDisplay = displays[displayIndex];
+               console.log(`Markdown Note: Targeting display ${displayIndex} for top-right placement.`);
+             } else {
+               console.warn(`Markdown Note: Invalid display index ${specifiedDisplayIndex}. Using primary display.`);
+             }
+           }
+
+           const displayWorkArea = targetDisplay.workArea;
+           // Calculate top-right position within the target display's work area
+           const x = displayWorkArea.x + displayWorkArea.width - width;
+           const y = displayWorkArea.y; // Top edge of the work area
+           console.log(`Markdown Note: Calculated top-right position: x=${x}, y=${y} on display ${targetDisplay.id}`);
+           // --- End position calculation ---
 
            console.log(`Creating new menu window for ${scenarioName} at (${x},${y}) size ${width}x${height}`);
            noteWindow = new BrowserWindow({
-            width: width,
-            height: height,
-            x: x,
-            y: y,
+            width: width,    // Use determined width
+            height: height,   // Use determined height
+            x: x,           // Use calculated x for top-right
+            y: y,           // Use calculated y for top-right
             frame: false,
             show: false, // Initially hide the window
             webPreferences: {
@@ -1031,65 +1040,8 @@ async function runScenario(scenarioName, scenarioList) {
 
       // --- 处理 show_markdown_note 动作 (如果仍然需要独立支持) --- 
       } else if (action.type === 'show_markdown_note' && action.file_path) {
-        console.log(`Processing direct show_markdown_note action: ${action.file_path}`);
-        // 如果需要独立显示 markdown 文件，可以在这里创建或复用窗口
-        // 但当前需求是菜单驱动，所以这个分支可能不需要了，或者需要不同的实现
-        // 暂时标记为不支持，以强制使用 menu 结构
+
          results.push({ action: JSON.stringify(action), success: false, message: 'Direct show_markdown_note is currently handled via menu actions.' });
-
-        /* // --- 原来的 show_markdown_note 逻辑 (需要调整以使用 preload 和 IPC) --- 
-        results.push(await new Promise(async (resolve) => {
-          const actionResult = { action: JSON.stringify(action), success: false, message: 'Failed to show markdown note.' };
-          try {
-            const noteId = `note-${noteIdCounter++}`;
-            const width = action.width || defaultWidth;
-            const height = action.height || defaultHeight;
-            const x = action.x || defaultX;
-            const y = action.y || defaultY;
-
-            const noteWindowInstance = new BrowserWindow({
-              width: width,
-              height: height,
-              x: x,
-              y: y,
-              frame: false,
-              webPreferences: {
-                 nodeIntegration: false, // Best practice: disable nodeIntegration
-                 contextIsolation: true, // Best practice: enable contextIsolation
-                 preload: path.join(__dirname, '..', 'preload.js') // 指定 preload 脚本
-              }
-            });
-
-            const absolutePath = path.resolve(__dirname, '..', 'utils', action.file_path);
-            console.log(`Reading markdown file: ${absolutePath}`);
-            const markdownContent = await fs.promises.readFile(absolutePath, 'utf8');
-            const htmlContent = marked(markdownContent);
-
-            const finalHtml = `...`; // HTML 结构需要调整，移除 nodeIntegration 依赖
-
-            noteWindowInstance.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(finalHtml)}`);
-
-            noteWindowInstance.once('ready-to-show', () => {
-              noteWindowInstance.show();
-              console.log(`Markdown note window shown for ${absolutePath}`);
-              actionResult.success = true;
-              actionResult.message = 'Markdown note displayed successfully.';
-              markdownNoteWindows.set(noteId, noteWindowInstance); // Store the window
-              resolve(actionResult);
-            });
-
-            noteWindowInstance.on('closed', () => {
-              console.log(`Markdown note window closed: ${noteId}`);
-              markdownNoteWindows.delete(noteId); // Remove from tracking
-            });
-
-          } catch (error) {
-            console.error(`Error creating markdown note for ${action.file_path}:`, error);
-            actionResult.message = `Error: ${error.message}`;
-            resolve(actionResult); // Resolve with error
-          }
-        }));
-        */
 
       // --- 处理其他动作 (app, url, etc.) --- 
       } else if (action.type === 'app' && action.name) {
@@ -1116,9 +1068,6 @@ async function runScenario(scenarioName, scenarioList) {
             console.warn(`Invalid display index ${action.display}. Using primary display.`);
           }
         }
-        const displayWorkArea = targetDisplay.workArea;
-        const targetX = displayWorkArea.x;
-        const targetY = displayWorkArea.y;
         let skipPreMove = false;
 
         // Check Obsidian Fullscreen Status
@@ -1236,14 +1185,7 @@ async function runScenario(scenarioName, scenarioList) {
     await new Promise(resolve => setTimeout(resolve, 200));
   }
 
-  // 移除旧的 dom-ready 监听器，因为逻辑移到了 handleMenuAction 的 <script> 中
-  /*
-  if (noteWindow && !noteWindow.isDestroyed()) {
-      noteWindow.webContents.on('dom-ready', () => {
-        // ... 旧的 executeJavaScript 逻辑 ...
-      });
-  }
-  */
+
 
   console.log('Scenario execution finished. Results:', results);
 }

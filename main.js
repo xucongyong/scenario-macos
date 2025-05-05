@@ -1,17 +1,10 @@
-const { app, BrowserWindow, ipcMain, shell, Menu, Tray, nativeImage, screen, dialog } = require('electron'); // Import screen module
+const { app, ipcMain} = require('electron'); // Import screen module
 const path = require('path');
-const { exec } = require('child_process');
 const fs = require('fs');
 const { marked } = require('marked'); // <-- Import marked
 
-// Keep track of markdown note windows
-const markdownNoteWindows = new Map(); // Use a Map to store windows by a unique ID or file path
-let noteIdCounter = 0;
-
-// let mainWindow; // 主窗口不再是必须的，可以注释掉或移除
 let tray = null;
 let scenarioList = []; // 新格式，存储场景对象列表
-let scenarios = {}; // 旧格式，保留用于兼容或默认
 
 // --- Import Scenario Loader ---
 const { loadScenarios: loadScenariosFromFile } = require('./utils/scenario-loader');
@@ -20,44 +13,6 @@ const { createTray: createTrayInstance } = require('./utils/tray-manager');
 // --- Import Scenario Runner ---
 const { runScenario } = require('./utils/scenario-runner');
 
-// --- (旧的 createWindow 函数内容，大部分可以移除或注释) ---
-/*
-function createWindow_old() {
-  // mainWindow = new BrowserWindow({
-  //   width: 800,
-  //   height: 600,
-  //   webPreferences: {
-  //     preload: path.join(__dirname, 'preload.js'),
-  //     contextIsolation: true,
-  //     nodeIntegration: false
-  //   }
-  // });
-
-  // mainWindow.loadFile('index.html');
-
-  // // 加载场景后发送给渲染进程
-  // loadScenarios();
-  // mainWindow.webContents.on('did-finish-load', () => {
-  //   mainWindow.webContents.send('update-scenarios', Object.keys(scenarios));
-  // });
-
-  // // mainWindow.webContents.openDevTools(); // 取消注释以打开开发者工具
-}
-*/
-
-// --- 获取所有显示器信息 (辅助函数) ---
-function getAllDisplaysInfo() {
-  return screen.getAllDisplays().map(display => ({
-    id: display.id,
-    bounds: display.bounds, // { x, y, width, height }
-    workArea: display.workArea, // Usable area excluding taskbars/docks
-    scaleFactor: display.scaleFactor,
-    primary: display.primary
-  }));
-}
-
-// --- AppleScript 执行 (Imported) ---
-const { runAppleScript } = require('./utils/applescript');
 
 // --- Electron 应用生命周期 ---
 // --- 自定义 URL Scheme 处理 ---
@@ -87,12 +42,7 @@ if (!gotTheLock) {
   app.quit();
 } else {
   app.on('second-instance', (event, commandLine, workingDirectory) => {
-    // 当尝试启动第二个实例时，聚焦我们的窗口（如果存在）并处理 URL
-    // if (mainWindow) {
-    //   if (mainWindow.isMinimized()) mainWindow.restore();
-    //   mainWindow.focus();
-    // }
-    
+
     // 从命令行参数中查找 URL
     const url = commandLine.find((arg) => arg.startsWith(`${PROTOCOL}://`));
     if (url) {
@@ -125,7 +75,6 @@ function handleUrl(url) {
 
 // --- 应用准备就绪 --- 
 app.whenReady().then(() => {
-  console.log('App is ready, loading scenarios and creating tray...');
   // Load scenarios first
   const scenariosPath = path.join(__dirname, 'scenarios.json');
   const loadedData = loadScenariosFromFile(scenariosPath);
@@ -141,11 +90,7 @@ app.whenReady().then(() => {
   }
 });
 
-// 当所有窗口关闭时，应用通常会退出，但菜单栏应用不应如此
 app.on('window-all-closed', function () {
-  // 在 macOS 上，即使没有窗口，应用也通常会保持活动状态
-  // 对于菜单栏应用，我们不希望在窗口关闭时退出
-  // 因此，只有在非 macOS 平台才退出
   if (process.platform !== 'darwin') {
       app.quit();
   }
@@ -169,12 +114,6 @@ app.on('activate', (event, hasVisibleWindows) => {
     console.log('Activate event: No visible windows, but tray exists. Doing nothing.');
   }
 });
-// Removed the misplaced 'if' and extra '});'
-
-// --- 场景执行逻辑 (重构) ---
-
-// 重构 runScenario 为一个独立的异步函数
-// 导入场景运行器模块
 
 // --- IPC Handler for Reading Markdown --- 
 ipcMain.handle('read-markdown-file', async (event, filePath) => {
@@ -188,7 +127,6 @@ ipcMain.handle('read-markdown-file', async (event, filePath) => {
   } catch (error) {
     console.error(`IPC: Error reading markdown file ${filePath}:`, error);
     // 向渲染进程抛出错误，以便在界面上显示
-    // 使用 Error 对象包装错误信息
     throw new Error(`无法读取文件: ${error.message}`); 
   }
 });
