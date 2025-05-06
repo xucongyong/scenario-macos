@@ -1,33 +1,88 @@
 {
   "scenarios": [
     {
-      "name": "Behavior Models",
+      "name": "markdown Models",
       "actions": [
         {
           "type": "menu",
           "items": [
             {
-              "name": "Fogg模型",
+              "name": "attention",
               "type": "submenu",
               "items": [
                 {
-                  "name": "行动环境",
+                  "name": "attention",
                   "actions": [
                     {
                       "type": "show_markdown_note",
-                      "file_path": "utils/fogg_behavior_model/Behavior_environment.md",
+                      "file_path": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior/attention.md",
                       "width": 350,
                       "height": 450,
-                      "display": 1
+                      "display": 0
                     }
                   ]
                 },
                 {
-                  "name": "模型核心",
+                  "name": "高效休息法",
                   "actions": [
                     {
                       "type": "show_markdown_note",
-                      "file_path": "utils/fogg_behavior_model/fogg_behavior_model.md",
+                      "file_path": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior/高效休息法.md",
+                      "width": 350,
+                      "height": 450
+                    }
+                  ]
+                },
+                {
+                  "name": "fogg_behavior_model",
+                  "actions": [
+                    {
+                      "type": "show_markdown_note",
+                      "file_path": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior/fogg_behavior_model.md",
+                      "width": 350,
+                      "height": 450
+                    }
+                  ]
+                },
+                {
+                  "name": "decision",
+                  "actions": [
+                    {
+                      "type": "show_markdown_note",
+                      "file_path": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior/fogg_behavior_model/Action/behavior_action_decision.md",
+                      "width": 350,
+                      "height": 450
+                    }
+                  ]
+                },
+                {
+                  "name": "behavior_action_english",
+                  "actions": [
+                    {
+                      "type": "show_markdown_note",
+                      "file_path": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior/fogg_behavior_model/Action/behavior_action_english.md",
+                      "width": 350,
+                      "height": 450
+                    }
+                  ]
+                },
+                {
+                  "name": "behavior_print",
+                  "actions": [
+                    {
+                      "type": "show_markdown_note",
+                      "file_path": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior/fogg_behavior_model/Action/behavior_print.md",
+                      "width": 350,
+                      "height": 450
+                    }
+                  ]
+                },
+                {
+                  "name": "behavior_delete_game",
+                  "actions": [
+                    {
+                      "type": "show_markdown_note",
+                      "file_path": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior/fogg_behavior_model/Action/behavior_action_delete_game.md",
                       "width": 350,
                       "height": 450
                     }
@@ -36,26 +91,15 @@
               ]
             },
             {
-              "name": "Action",
+              "name": "body",
               "type": "submenu",
               "items": [
                 {
-                  "name": "行为清单",
+                  "name": "Food",
                   "actions": [
                     {
                       "type": "show_markdown_note",
-                      "file_path": "utils/fogg_behavior_model/behavior_hook_list.md",
-                      "width": 350,
-                      "height": 450
-                    }
-                  ]
-                },
-                {
-                  "name": "行为推荐",
-                  "actions": [
-                    {
-                      "type": "show_markdown_note",
-                      "file_path": "utils/fogg_behavior_model/behavior_recommder.md",
+                      "file_path": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior/body/Food.md",
                       "width": 350,
                       "height": 450
                     }
