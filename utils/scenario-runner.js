@@ -829,28 +829,11 @@ async function handleMenuAction(menuItems, window, scenarioName) {
 
     // --- 加载初始内容 --- 
     if (firstItemPath) {
-      // 统一路径解析：相对于项目根目录 (app.getAppPath() 在主进程中可用，这里需要找到替代方式或调整逻辑)
-      // 暂时假设 firstItemPath 已经是相对于项目根目录的正确路径 (如 'utils/fogg_behavior_model/...')
-      // 注意：BrowserWindow 无法直接访问 app.getAppPath()，路径解析需要在主进程完成或传递过来
-      // 这里我们依赖于 main.js 的 IPC 调用来处理正确的路径解析
-      // 因此，直接使用 firstItemPath 调用 IPC
-      console.log(`Requesting initial markdown content via IPC for: ${firstItemPath}`);
-      // 注意：这里不能直接 readFile，因为这是在主进程的函数，但最终会在渲染进程的<script>中执行
-      // 初始内容的加载逻辑已移至 HTML 内的 <script> 部分，通过 IPC 调用
-      // 此处的 readFile 逻辑需要移除或注释掉，因为 initialContentHtml 的生成方式改变了
-      // const markdownContent = await fs.promises.readFile(absolutePath, 'utf8');
-      // initialContentHtml = marked(markdownContent);
-      
-      // 调整窗口大小以适应第一个项目 (暂时移除 try-catch)
       try {
           window.setSize(firstItemWidth, firstItemHeight);
-          console.log(`Set initial window size to ${firstItemWidth}x${firstItemHeight}`);
       } catch (sizeError) {
-          console.error(`Error setting initial window size for ${firstItemPath}:`, sizeError);
           // 如果设置大小失败，也应该继续，但记录错误
       }
-      // console.log(`Attempting to set initial window size to ${firstItemWidth}x${firstItemHeight}`);
-      // window.setSize(firstItemWidth, firstItemHeight); // 暂时直接调用，移除 try-catch
     }
 
     // --- 完整的 HTML 结构 --- 
@@ -1036,7 +1019,6 @@ async function runScenario(scenarioName, scenarioList) {
           });
         }
         const menuResult = await handleMenuAction(action.items, noteWindow, scenarioName);
-        results.push({ action: JSON.stringify(action), ...menuResult });
 
       // --- 处理 show_markdown_note 动作 (如果仍然需要独立支持) --- 
       } else if (action.type === 'show_markdown_note' && action.file_path) {
@@ -1045,7 +1027,6 @@ async function runScenario(scenarioName, scenarioList) {
 
       // --- 处理其他动作 (app, url, etc.) --- 
       } else if (action.type === 'app' && action.name) {
-        console.log(`Processing app action: ${action.name}`);
         // ... (保留原来的 app 处理逻辑) ...
         // 1. 尝试激活应用
         await new Promise((resolve, reject) => {
