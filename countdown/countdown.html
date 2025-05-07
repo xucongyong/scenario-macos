@@ -1,0 +1,71 @@
+<header>
+<style>
+  #number{width:30px;}
+  #time_show{
+    color:blue;
+    text-align: center;
+    /*line-height:center;*/
+  }
+  #start_button{
+      background: #3498db;
+      background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+      background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+      background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+      background-image: -o-linear-gradient(top, #3498db, #2980b9);
+      background-image: linear-gradient(to bottom, #3498db, #2980b9);
+      -webkit-border-radius: 28;
+      -moz-border-radius: 28;
+      border-radius: 28px;
+      font-family: Arial;
+      color: #ffffff;
+      font-size: 20px;
+      text-decoration: none;
+  }
+</style>
+</header>
+<body>
+<div id="time">
+
+<progress id="time_progress" max="100" value="100"></progress>
+
+<div id="button_div">
+<input id='number' value='47'>
+<button id='start_button'onclick="time_start();">start</button>
+<!-- <button onclick="refresh()">refresh</button>-->
+</div>
+
+</div>
+</body>
+
+
+<script type="text/javascript">
+
+
+
+
+function refresh() {
+  location.reload();
+}
+function time_start(){
+var get_time_value = parseInt(document.getElementById("number").value)
+var time_value = get_time_value *1*60
+
+var myInterval=setInterval(start_count_time_function, 1000);
+document.getElementById('time_progress').max=time_value;
+document.getElementById('button_div').innerHTML=`<button id='start_button' onclick="refresh()">end</button><text id="time_show"></text>`
+
+function start_count_time_function(){
+  time_value -= 1;
+  document.getElementById('time_show').innerHTML=time_value;
+  document.getElementById('time_progress').value=time_value;
+
+  if(time_value==0){
+    clearInterval(myInterval);
+    new Notification("title", { body: "Game over 游戏结束"})
+    }
+  }
+}
+
+
+</script>
+

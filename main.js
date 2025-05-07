@@ -5,7 +5,6 @@ const { marked } = require('marked'); // <-- Import marked
 
 let tray = null;
 let scenarioList = []; // 新格式，存储场景对象列表
-
 // --- Import Scenario Loader ---
 const { loadScenarios: loadScenariosFromFile } = require('./utils/scenario-loader');
 // --- Import Tray Manager ---
@@ -13,9 +12,6 @@ const { createTray: createTrayInstance } = require('./utils/tray-manager');
 // --- Import Scenario Runner ---
 const { runScenario } = require('./utils/scenario-runner');
 
-
-// --- Electron 应用生命周期 ---
-// --- 自定义 URL Scheme 处理 ---
 const PROTOCOL = 'myapp-scenario'; // 定义你的 scheme
 
 if (process.defaultApp) {
@@ -34,10 +30,8 @@ app.on('open-url', (event, url) => {
   console.log(`Received URL: ${url}`);
   handleUrl(url);
 });
-
 // 处理 Windows/Linux 的第二个实例启动
 const gotTheLock = app.requestSingleInstanceLock();
-
 if (!gotTheLock) {
   app.quit();
 } else {
@@ -71,8 +65,6 @@ function handleUrl(url) {
     console.error('Invalid URL command path:', commandPath);
   }
 }
-
-
 // --- 应用准备就绪 --- 
 app.whenReady().then(() => {
   // Load scenarios first
