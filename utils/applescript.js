@@ -7,8 +7,17 @@ const { exec } = require('child_process');
  * @param {function(Error | null, string | null): void} [callback] - Optional callback function (error, stdout).
  */
 function runAppleScript(script, callback) {
+  // Trim the script to check if it's empty or only whitespace
+  const trimmedScript = script.trim();
+
+  if (!trimmedScript) {
+    console.warn('Skipping execution of empty AppleScript.');
+    if (callback) callback(null, ''); // Call callback with no error and empty stdout
+    return;
+  }
+
   // Ensure script's double quotes are escaped for the command line
-  const escapedScript = script.replace(/"/g, '\\"');
+  const escapedScript = trimmedScript.replace(/"/g, '\\"'); // Correctly escape for shell
   const command = `osascript -e "${escapedScript}"`;
   console.log('Executing AppleScript:', command);
 
@@ -28,4 +37,20 @@ function runAppleScript(script, callback) {
   });
 }
 
-module.exports = { runAppleScript };
+/**
+ * Escapes a string for safe embedding within an AppleScript string literal.
+ * Handles backslashes and double quotes, which are common sources of syntax errors.
+ * @param {string} str - The string to escape.
+ * @returns {string} The escaped string.
+ */
+function escapeStringForAppleScript(str) {
+  if (typeof str !== 'string') {
+    console.warn('escapeStringForAppleScript received non-string input:', str);
+    return ''; // Return empty string for non-string inputs to prevent further errors
+  }
+  // Escape backslashes (replace  with \\ for AppleScript)
+  // Escape double quotes (replace " with \" for AppleScript)
+  return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
+module.exports = { runAppleScript, escapeStringForAppleScript };

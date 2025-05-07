@@ -16,8 +16,8 @@
     "electron-builder": "^26.0.12"
   },
   "build": {
-    "appId": "com.example.scenario-xcy",
-    "productName": "Scenario Runner",
+    "appId": "com.xucongyong.scenario-xcy",
+    "productName": "scenario-xcy",
     "mac": {
       "category": "public.app-category.utilities",
       "target": "dmg"
