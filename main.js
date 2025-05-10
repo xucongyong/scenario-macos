@@ -99,6 +99,12 @@ app.whenReady().then(() => {
 
   // Create tray, passing the scenario list and the runScenario function
   tray = createTrayInstance(scenarioList, (scenarioName) => runScenario(scenarioName, scenarioList));
+  
+  // 注册全局快捷键 Shift+Command+X 来切换窗口置顶状态
+  const { globalShortcut } = require('electron');
+  globalShortcut.register('Shift+Command+x', () => {
+        ipcMain.emit('toggle-always-on-top');
+  });
 
   // Set and hide the Dock icon on macOS
   if (process.platform === 'darwin') {

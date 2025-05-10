@@ -142,13 +142,24 @@ async function handleMenuAction(menuItems, window, scenarioName) {
     window.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(finalHtml)}`);
 
     window.once('ready-to-show', () => {
-      window.show();
-      actionResult.success = true;
+      window.show(); // 默认显示窗口
+      
+      const toggleWindowState = () => {
+        if (window.isVisible()) {
+          window.hide();
+        } else {
+          window.show();
+        }
+      };
+      
+      ipcMain.on('toggle-always-on-top', toggleWindowState);
+     
     });
 
     // 处理窗口关闭
     window.on('closed', () => {
-      // 如果需要，可以在这里进行清理
+      // 移除IPC监听器
+      ipcMain.removeAllListeners('toggle-always-on-top');
     });
 
   } catch (error) {
@@ -213,12 +224,14 @@ async function runScenario(scenarioName, scenarioList) {
            // --- End position calculation ---
 
            noteWindow = new BrowserWindow({
+            alwaysOnTop: true, // Make the window always on top
             width: width,    // Use determined width
             height: height,   // Use determined height
             x: x,           // Use calculated x for top-right
             y: y,           // Use calculated y for top-right
             frame: false,
             show: false, // Initially hide the window
+            focusable: true, // Ensure the window can be focused, useful for alwaysOnTop
             webPreferences: {
               nodeIntegration: false, // Security: Disable Node.js integration in renderer
               contextIsolation: true, // Security: Isolate renderer context
