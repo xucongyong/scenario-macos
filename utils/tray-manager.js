@@ -1,5 +1,5 @@
 // utils/tray-manager.js
-const { Tray, Menu, nativeImage, screen, dialog, app, BrowserWindow } = require('electron');
+const { Tray, Menu, nativeImage, screen, dialog, app } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -19,7 +19,7 @@ function createTray(scenarioList, runScenarioCallback) {
 
   // Construct the correct path to the icon file relative to the main script's directory (__dirname)
   // Note: __dirname in this context might be utils/, so we go up one level.
-  const iconPath = path.join(__dirname, '..', 'assets', 'icon.png');
+  const iconPath = path.join(__dirname, '..', 'assets', 'x-logo.jpeg');
   console.log(`Attempting to load tray icon from: ${iconPath}`);
 
   let trayIcon;

@@ -15,11 +15,8 @@ function loadScenarios(scenariosFilePath) {
     if (fs.existsSync(scenariosFilePath)) {
       const fileContent = fs.readFileSync(scenariosFilePath, 'utf-8');
       const parsedJson = JSON.parse(fileContent);
-
-      // Check for new format { "scenarios": [...] }
       if (parsedJson && Array.isArray(parsedJson.scenarios)) {
         scenarioList = parsedJson.scenarios;
-        console.log(`Loaded ${scenarioList.length} scenarios from new format.`);
         // Populate old format for compatibility
         scenarioList.forEach(scenario => {
           if (scenario.name && Array.isArray(scenario.actions)) {
@@ -41,7 +38,7 @@ function loadScenarios(scenariosFilePath) {
       scenarios = {
         "Demo Scene 1": [
           { "type": "app", "name": "TextEdit", "position": [50, 50], "size": [400, 300] },
-          { "type": "url", "url": "https://www.electronjs.org" }
+          { "type": "url", "url": "https://www.google.com" }
         ],
         "Demo Scene 2": [
           { "type": "app", "name": "Calculator", "position": [500, 50], "size": [250, 400] }

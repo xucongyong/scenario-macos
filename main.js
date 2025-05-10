@@ -1,4 +1,4 @@
-const { app, ipcMain} = require('electron'); // Import screen module
+const { app, ipcMain, nativeImage } = require('electron'); // Import screen module, nativeImage for icon handling
 const path = require('path');
 const fs = require('fs');
 const { marked } = require('marked'); // <-- Import marked
@@ -65,19 +65,55 @@ function handleUrl(url) {
     console.error('Invalid URL command path:', commandPath);
   }
 }
+// Function to ensure scenarios.json exists in userData and load it
+function loadScenarios() {
+  const userDataPath = app.getPath('home');
+  const scenariosFileName = 'scenarios.json';
+  const userScenarioDir = path.join(userDataPath, 'mathematics', 'xucongyong.com', 'markdown');
+  const userScenariosPath = path.join(userScenarioDir, scenariosFileName);
+  const appScenariosPath = path.join(__dirname, scenariosFileName);
+
+  // Check if scenarios.json exists in userData path
+  if (!fs.existsSync(userScenariosPath)) {
+    try {
+      // If not, copy it from the app directory
+      // Ensure the target directory for userScenariosPath exists
+      fs.mkdirSync(userScenarioDir, { recursive: true }); 
+      fs.copyFileSync(appScenariosPath, userScenariosPath);
+    } catch (err) {
+      console.error(`Error copying ${scenariosFileName} to userData:`, err);
+      // Fallback to app directory if copy fails
+      return loadScenariosFromFile(appScenariosPath);
+    }
+  }
+  console.log(`Loading ${scenariosFileName} from ${userScenariosPath}`);
+  return loadScenariosFromFile(userScenariosPath);
+}
+
 // --- 应用准备就绪 --- 
 app.whenReady().then(() => {
-  // Load scenarios first
-  const scenariosPath = path.join(__dirname, 'scenarios.json');
-  const loadedData = loadScenariosFromFile(scenariosPath);
+  // Load scenarios first using the new function
+  const loadedData = loadScenarios();
   scenarioList = loadedData.scenarioList;
   scenarios = loadedData.scenarios; // Keep old format populated if needed
 
   // Create tray, passing the scenario list and the runScenario function
   tray = createTrayInstance(scenarioList, (scenarioName) => runScenario(scenarioName, scenarioList));
 
-  // Hide the Dock icon on macOS
+  // Set and hide the Dock icon on macOS
   if (process.platform === 'darwin') {
+    const appIconPath = path.join(__dirname, 'assets', 'x-logo.jpeg');
+    if (fs.existsSync(appIconPath)) {
+      try {
+        const image = nativeImage.createFromPath(appIconPath);
+        app.dock.setIcon(image);
+        console.log('Application dock icon set successfully.');
+      } catch (error) {
+        console.error(`Error setting application dock icon from ${appIconPath}:`, error);
+      }
+    } else {
+      console.error(`Application dock icon file not found at: ${appIconPath}`);
+    }
     app.dock.hide();
   }
 });
@@ -94,16 +130,13 @@ app.on('activate', (event, hasVisibleWindows) => {
   // 通常会重新创建一个窗口。对于菜单栏应用，我们检查托盘图标是否存在。
   if (!hasVisibleWindows && !tray) {
     // 如果没有可见窗口且托盘图标不存在（例如意外关闭），则重新创建
-    console.log('Activate event: No visible windows and no tray, recreating tray.');
-    // Reload scenarios before recreating tray
-    const scenariosPath = path.join(__dirname, 'scenarios.json');
-    const loadedData = loadScenariosFromFile(scenariosPath);
+    // Reload scenarios before recreating tray using the new function
+    const loadedData = loadScenarios();
     scenarioList = loadedData.scenarioList;
     scenarios = loadedData.scenarios;
-    tray = createTrayInstance(scenarioList, runScenario);
+    tray = createTrayInstance(scenarioList, (scenarioName) => runScenario(scenarioName, scenarioList)); // Ensure runScenario is correctly passed
   } else if (!hasVisibleWindows && tray) {
     // 如果没有可见窗口但托盘图标存在，则不执行任何操作
-    console.log('Activate event: No visible windows, but tray exists. Doing nothing.');
   }
 });
 

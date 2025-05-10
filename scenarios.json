@@ -11,34 +11,11 @@
               "type": "submenu",
               "items": [
                 {
-                  "name": "attention",
+                  "name": "behavior_delete_dopamine",
                   "actions": [
                     {
                       "type": "show_markdown_note",
-                      "file_path": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior/attention.md",
-                      "width": 350,
-                      "height": 450,
-                      "display": 0
-                    }
-                  ]
-                },
-                {
-                  "name": "高效休息法",
-                  "actions": [
-                    {
-                      "type": "show_markdown_note",
-                      "file_path": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior/高效休息法.md",
-                      "width": 350,
-                      "height": 450
-                    }
-                  ]
-                },
-                {
-                  "name": "fogg_behavior_model",
-                  "actions": [
-                    {
-                      "type": "show_markdown_note",
-                      "file_path": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior/fogg_behavior_model.md",
+                      "file_path": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior/fogg_behavior_model/Action/behavior_action_delete_dopamine.md",
                       "width": 350,
                       "height": 450
                     }
@@ -78,11 +55,34 @@
                   ]
                 },
                 {
-                  "name": "behavior_delete_game",
+                  "name": "fogg_behavior_model",
                   "actions": [
                     {
                       "type": "show_markdown_note",
-                      "file_path": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior/fogg_behavior_model/Action/behavior_action_delete_game.md",
+                      "file_path": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior/fogg_behavior_model.md",
+                      "width": 350,
+                      "height": 450
+                    }
+                  ]
+                },
+                {
+                  "name": "attention",
+                  "actions": [
+                    {
+                      "type": "show_markdown_note",
+                      "file_path": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior/attention.md",
+                      "width": 350,
+                      "height": 450,
+                      "display": 0
+                    }
+                  ]
+                },
+                {
+                  "name": "高效休息法",
+                  "actions": [
+                    {
+                      "type": "show_markdown_note",
+                      "file_path": "/Users/xucongyong/mathematics/xucongyong.com/markdown/behavior/高效休息法.md",
                       "width": 350,
                       "height": 450
                     }
@@ -118,8 +118,7 @@
         { "type": "app", "name": "Obsidian", "display": 1, "fullscreen": true },
         { "type": "close_browsers" },
         { "type": "url", "url": "https://www.xucongyong.com/decision", "display": 2, "layout": "left-half" },
-        { "type": "url", "url": "http://aistudio.google.com/prompts", "display": 2, "layout": "right-half" },
-        { "type": "url", "url": "https://www.youtube.com/watch?v=fLi0EJfi_vg&list=PLARyBzvtoHk0Qtw6evpVBB4cvgtygDDp7", "display": 2, "layout": "left-half" }
+        { "type": "url", "url": "http://aistudio.google.com/prompts", "display": 2, "layout": "right-half" }
       ]
     },
     {

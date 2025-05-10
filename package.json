@@ -1,5 +1,5 @@
 {
-  "name": "scenario-xcy",
+  "name": "scenario-X",
   "version": "1.0.0",
   "description": "An Electron app to automate opening apps and URLs on macOS",
   "main": "main.js",
@@ -16,9 +16,10 @@
     "electron-builder": "^26.0.12"
   },
   "build": {
-    "appId": "com.xucongyong.scenario-xcy",
-    "productName": "scenario-xcy",
+    "appId": "com.xucongyong.scenario",
+    "productName": "scenario-X",
     "mac": {
+      "icon": "assets/x-logo.jpeg",
       "category": "public.app-category.utilities",
       "target": "dmg"
     }

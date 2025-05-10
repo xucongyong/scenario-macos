@@ -143,14 +143,11 @@ async function handleMenuAction(menuItems, window, scenarioName) {
 
     window.once('ready-to-show', () => {
       window.show();
-      console.log(`Menu note window shown for scenario: ${scenarioName}`);
       actionResult.success = true;
-      actionResult.message = 'Menu note displayed successfully.';
     });
 
     // 处理窗口关闭
     window.on('closed', () => {
-      console.log(`Menu note window closed for scenario: ${scenarioName}`);
       // 如果需要，可以在这里进行清理
     });
 
@@ -167,8 +164,6 @@ async function handleMenuAction(menuItems, window, scenarioName) {
 
 
 async function runScenario(scenarioName, scenarioList) {
-  console.log(`Received request to run scenario: ${scenarioName}`);
-
   // Define default window dimensions and position
   const defaultWidth = 800;
   const defaultHeight = 600;
@@ -253,16 +248,13 @@ async function runScenario(scenarioName, scenarioList) {
         await runAppleScript(`tell application "Google Chrome" to quit`)
         await new Promise(resolve => setTimeout(resolve, 500)); 
       }else if (action.type === 'close_app' && action.name) {
-        console.log(`Processing close_app action for: ${action.name}`);
         const closeScript = `tell application ${action.name} to quit `;
         runAppleScript(closeScript)
       } else {
         // 保留原始的无效动作处理
-        console.warn('Skipping invalid or unsupported action:', action);
         results.push({ action: JSON.stringify(action), success: false, message: 'Invalid or unsupported action format.' });
       }
     } catch (error) {
-      console.error(`Error processing action ${JSON.stringify(action)}:`, error);
       results.push({ action: JSON.stringify(action), success: false, message: `Runtime error: ${error.message}` });
     }
     // 在每个动作之间添加短暂延迟
