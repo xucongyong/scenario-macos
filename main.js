@@ -1,4 +1,4 @@
-const { app, ipcMain, nativeImage } = require('electron'); // Import screen module, nativeImage for icon handling
+const { app, ipcMain, nativeImage,globalShortcut,BrowserWindow } = require('electron'); // Import screen module, nativeImage for icon handling
 const path = require('path');
 const fs = require('fs');
 const { marked } = require('marked'); // <-- Import marked
@@ -92,6 +92,7 @@ function loadScenarios() {
 
 // --- 应用准备就绪 --- 
 app.whenReady().then(() => {
+  console.log('Application is ready.');
   // Load scenarios first using the new function
   const loadedData = loadScenarios();
   scenarioList = loadedData.scenarioList;
@@ -101,9 +102,8 @@ app.whenReady().then(() => {
   tray = createTrayInstance(scenarioList, (scenarioName) => runScenario(scenarioName, scenarioList));
   
   // 注册全局快捷键 Shift+Command+X 来切换窗口置顶状态
-  const { globalShortcut } = require('electron');
   globalShortcut.register('Shift+Command+x', () => {
-        ipcMain.emit('toggle-always-on-top');
+      ipcMain.emit(`toggle-always-on-top`);
   });
 
   // Set and hide the Dock icon on macOS
