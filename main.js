@@ -162,3 +162,29 @@ ipcMain.handle('read-markdown-file', async (event, filePath) => {
   }
 });
 
+// --- IPC Handler for Getting Raw Markdown Content ---
+ipcMain.handle('get-raw-markdown-file', async (event, filePath) => {
+  try {
+    const absolutePath = path.resolve(app.getAppPath(), filePath);
+    console.log(`IPC: Reading raw markdown file requested by renderer: ${absolutePath}`);
+    const rawMarkdownContent = await fs.promises.readFile(absolutePath, 'utf8');
+    return rawMarkdownContent;
+  } catch (error) {
+    console.error(`IPC: Error reading raw markdown file ${filePath}:`, error);
+    throw new Error(`无法读取原始文件: ${error.message}`);
+  }
+});
+
+// --- IPC Handler for Saving Markdown Content ---
+ipcMain.handle('save-markdown-file', async (event, { filePath, content }) => {
+  try {
+    const absolutePath = path.resolve(app.getAppPath(), filePath);
+    console.log(`IPC: Saving markdown file requested by renderer: ${absolutePath}`);
+    await fs.promises.writeFile(absolutePath, content, 'utf8');
+    return { success: true, message: '文件已成功保存。' };
+  } catch (error) {
+    console.error(`IPC: Error saving markdown file ${filePath}:`, error);
+    throw new Error(`无法保存文件: ${error.message}`);
+  }
+});
+

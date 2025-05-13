@@ -70,42 +70,126 @@ async function handleMenuAction(menuItems, window, scenarioName) {
       <head>
         <meta charset="UTF-8">
         <title>Scenario Note</title>
+        <style>
+          body { font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+          .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 5px; background-color: #f0f0f0; border-bottom: 1px solid #ccc; }
+          .mode-controls button { margin-left: 5px; }
+          .main-container { display: flex; flex-grow: 1; overflow: hidden; }
+          .navigation { width: 200px; border-right: 1px solid #ccc; padding: 10px; overflow-y: auto; }
+          .nav-level-1 .submenu-title { font-weight: bold; margin-top: 10px; }
+          .nav-level-2 .nav-button { display: block; width: 100%; text-align: left; margin-bottom: 5px; padding: 5px; border: 1px solid transparent; background-color: #fff; cursor: pointer; }
+          .nav-level-2 .nav-button.active { border-color: #007bff; background-color: #e7f3ff; }
+          .content-area { flex-grow: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column;}
+          #markdown-view { flex-grow: 1; }
+          #markdown-editor-container { display: none; flex-grow: 1; flex-direction: column; }
+          #markdown-textarea { flex-grow: 1; width: 100%; box-sizing: border-box; font-family: monospace; font-size: 14px; padding: 8px; border: 1px solid #ccc; resize: none; }
+          .close-button { text-decoration: none; color: #333; font-size: 20px; padding: 0 5px; }
+        </style>
       </head>
       <body>
-        ${navigationHtml}
-        <div class="content" id="markdown-content">
-          ${initialContentHtml}
+        <div class="top-bar">
+          <div class="mode-controls">
+            <button id="view-mode-btn" class="active">查看模式</button>
+            <button id="edit-mode-btn">编辑模式</button>
+            <button id="save-btn" style="display:none;">保存</button>
+          </div>
+          <a href="#" class="close-button" title="Close" onclick="window.close(); return false;">×</a>
         </div>
-        <a href="#" class="close-button" title="Close" onclick="window.close(); return false;"></a>
+        <div class="main-container">
+          ${navigationHtml}
+          <div class="content-area">
+            <div id="markdown-view">
+              ${initialContentHtml}
+            </div>
+            <div id="markdown-editor-container">
+              <textarea id="markdown-textarea"></textarea>
+            </div>
+          </div>
+        </div>
+        
         <script>
-          // Renderer script content embedded here
+          let currentFilePath = null;
+          let rawMarkdownContent = '';
+          const viewDiv = document.getElementById('markdown-view');
+          const editorContainer = document.getElementById('markdown-editor-container');
+          const textarea = document.getElementById('markdown-textarea');
+          const viewModeBtn = document.getElementById('view-mode-btn');
+          const editModeBtn = document.getElementById('edit-mode-btn');
+          const saveBtn = document.getElementById('save-btn');
 
           // 函数：加载 Markdown 内容
           async function loadMarkdown(filePath) {
-            const contentDiv = document.getElementById('markdown-content');
-            const buttons = document.querySelectorAll('.nav-button');
-            contentDiv.innerHTML = '<p>加载中...</p>'; // 显示加载提示
-
-            // 移除所有按钮的 active 类
-            buttons.forEach(btn => btn.classList.remove('active'));
-            // 给当前按钮添加 active 类
-            // Escape the dollar sign for the inner template literal
-            var selector = '.nav-button[data-filepath="' + filePath + '"]'; // Use string concatenation instead of nested template literal 
-            const currentButton = document.querySelector(selector);
-            if (currentButton) {
-              currentButton.classList.add('active');
-            }
+            currentFilePath = filePath;
+            viewDiv.innerHTML = '<p>加载中...</p>';
+            textarea.value = ''; // Clear textarea
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(btn => btn.classList.remove('active'));
+            const currentNavButton = document.querySelector(\`.nav-button[data-filepath="\${filePath}"]\`);
+            if (currentNavButton) currentNavButton.classList.add('active');
 
             try {
               // Request main process to read and render the file via preload script
+              // We'll need two calls: one for HTML, one for raw markdown
               const htmlContent = await window.electronAPI.invoke('read-markdown-file', filePath);
-              contentDiv.innerHTML = htmlContent;
+              viewDiv.innerHTML = htmlContent;
+              
+              // TODO: Replace with actual IPC call for raw markdown
+              // For now, let's assume 'read-markdown-file' could be adapted or a new one created
+              // This is a placeholder, main process needs to provide raw content
+              rawMarkdownContent = await window.electronAPI.invoke('get-raw-markdown-file', filePath); 
+              textarea.value = rawMarkdownContent;
+
+              switchToViewMode(); // Default to view mode after loading
             } catch (error) {
               console.error('Error loading markdown:', error);
-              const errorMessageHTML = '<p style="color: red;">错误：无法加载文件 ' + filePath + '. ' + (error.message || '') + '</p>';
-              contentDiv.innerHTML = errorMessageHTML;
+              const errorMessage = \`无法加载文件 \${filePath}. \${error.message || ''}\`;
+              viewDiv.innerHTML = \`<p style="color: red;">错误：\${errorMessage}</p>\`;
+              textarea.value = \`# 错误\n\n\${errorMessage}\`;
             }
           }
+
+          function switchToViewMode() {
+            viewDiv.style.display = 'block';
+            editorContainer.style.display = 'none';
+            saveBtn.style.display = 'none';
+            viewModeBtn.classList.add('active');
+            editModeBtn.classList.remove('active');
+          }
+
+          function switchToEditMode() {
+            viewDiv.style.display = 'none';
+            editorContainer.style.display = 'flex'; // Use flex for textarea to grow
+            saveBtn.style.display = 'inline-block';
+            viewModeBtn.classList.remove('active');
+            editModeBtn.classList.add('active');
+            textarea.focus();
+          }
+
+          async function saveMarkdown() {
+            if (!currentFilePath) {
+              alert('没有文件被选中，无法保存。');
+              return;
+            }
+            const newContent = textarea.value;
+            try {
+              // TODO: Implement actual IPC call to save the file
+              console.log('Attempting to save:', currentFilePath, 'with content:', newContent);
+              await window.electronAPI.invoke('save-markdown-file', { filePath: currentFilePath, content: newContent });
+              rawMarkdownContent = newContent; // Update local raw content
+              // Optionally, re-render the view
+              const htmlContent = await window.electronAPI.invoke('read-markdown-file', currentFilePath); // This assumes save also updates the source for read-markdown-file
+              viewDiv.innerHTML = htmlContent;
+              alert('文件已保存！');
+              switchToViewMode();
+            } catch (error) {
+              console.error('Error saving markdown:', error);
+              alert(\`保存文件失败: \${error.message}\`);
+            }
+          }
+
+          viewModeBtn.addEventListener('click', switchToViewMode);
+          editModeBtn.addEventListener('click', switchToEditMode);
+          saveBtn.addEventListener('click', saveMarkdown);
 
           // Add event listeners to navigation buttons
           document.querySelectorAll('.nav-button').forEach(button => {
@@ -123,14 +207,12 @@ async function handleMenuAction(menuItems, window, scenarioName) {
              if (firstLevel2Button) {
                 const firstFilePath = firstLevel2Button.dataset.filepath;
                 if(firstFilePath) {
-                   console.log('Loading initial content for:', firstFilePath);
                    loadMarkdown(firstFilePath);
                 } else {
-                   console.log('First level-2 button found, but no filepath data.');
-                   document.getElementById('markdown-content').innerHTML = '<p>无法找到初始文件路径。</p>';
+                   document.getElementById('markdown-view').innerHTML = '<p>无法找到初始文件路径。</p>';
                 }
              } else {
-                 console.log('No level-2 navigation buttons found.');
+                 document.getElementById('markdown-view').innerHTML = '<p>没有可导航的 Markdown 文件。</p>';
              }
           });
         </script>
