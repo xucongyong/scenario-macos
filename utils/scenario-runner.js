@@ -6,8 +6,8 @@ const path = require('path');
 const markdownNoteWindows = new Map();
 
 async function handleMenuAction(menuItems, window, scenarioName) {
-  const defaultWidth = 400; // Define default width locally
-  const defaultHeight = 600; // Define default height locally
+  const defaultWidth = 950; // Define default width locally
+  const defaultHeight = 750; // Define default height locally
   // Add opening comment marker
   const actionResult = { success: false, message: 'Failed to handle menu action.' };
   try {
@@ -37,7 +37,7 @@ async function handleMenuAction(menuItems, window, scenarioName) {
               // 记录第一个有效项的文件路径和尺寸 (第一个子菜单的第一个项)
               if (isFirstSubmenuItem) {
                 firstItemPath = filePath;
-                firstItemWidth = mdAction.width || defaultWidth;
+                firstItemWidth = (mdAction.width || defaultWidth) * 2;
                 firstItemHeight = mdAction.height || defaultHeight;
                 isFirstSubmenuItem = false; // 只记录一次
               }
