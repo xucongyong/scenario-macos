@@ -75,15 +75,16 @@ async function handleMenuAction(menuItems, window, scenarioName) {
           .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 5px; background-color: #f0f0f0; border-bottom: 1px solid #ccc; }
           .mode-controls button { margin-left: 5px; }
           .main-container { display: flex; flex-grow: 1; overflow: hidden; }
-          .navigation { width: 200px; border-right: 1px solid #ccc; padding: 10px; overflow-y: auto; }
+          .navigation { width: 200px; /* Initial width */ border-right: 1px solid #ccc; padding: 10px; overflow-y: auto; position: relative; /* For resizer */ }
           .nav-level-1 .submenu-title { font-weight: bold; margin-top: 10px; }
-          .nav-level-2 .nav-button { display: block; width: 100%; text-align: left; margin-bottom: 5px; padding: 5px; border: 1px solid transparent; background-color: #fff; cursor: pointer; }
+          .nav-level-2 .nav-button { display: block; width: 100%; text-align: left; margin-bottom: 5px; padding: 5px; border: 1px solid transparent; background-color: #fff; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; /* Prevent text overflow */ }
           .nav-level-2 .nav-button.active { border-color: #007bff; background-color: #e7f3ff; }
           .content-area { flex-grow: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column;}
           #markdown-view { flex-grow: 1; }
           #markdown-editor-container { display: none; flex-grow: 1; flex-direction: column; }
           #markdown-textarea { flex-grow: 1; width: 100%; box-sizing: border-box; font-family: monospace; font-size: 14px; padding: 8px; border: 1px solid #ccc; resize: none; }
           .close-button { text-decoration: none; color: #333; font-size: 20px; padding: 0 5px; }
+          .resizer { width: 5px; background: #ccc; cursor: col-resize; position: absolute; top: 0; right: -2px; /* Position slightly over the border */ bottom: 0; z-index: 100; }
         </style>
       </head>
       <body>
@@ -97,6 +98,7 @@ async function handleMenuAction(menuItems, window, scenarioName) {
         </div>
         <div class="main-container">
           ${navigationHtml}
+          <div class="resizer" id="resizer"></div>
           <div class="content-area">
             <div id="markdown-view">
               ${initialContentHtml}
@@ -200,6 +202,43 @@ async function handleMenuAction(menuItems, window, scenarioName) {
               }
             });
           });
+
+          // Resizer logic
+          const resizer = document.getElementById('resizer');
+          const navigationPanel = document.querySelector('.navigation');
+          let isResizing = false;
+
+          if (resizer && navigationPanel) {
+            resizer.addEventListener('mousedown', (e) => {
+              isResizing = true;
+              document.body.style.cursor = 'col-resize'; // Change cursor for the whole body
+              document.body.style.userSelect = 'none'; // Prevent text selection during resize
+
+              document.addEventListener('mousemove', handleMouseMove);
+              document.addEventListener('mouseup', stopResize);
+            });
+
+            function handleMouseMove(e) {
+              if (!isResizing) return;
+              // Calculate new width, considering the main container's position
+              const mainContainerRect = document.querySelector('.main-container').getBoundingClientRect();
+              let newWidth = e.clientX - mainContainerRect.left;
+              const minWidth = 100; // Minimum width for navigation
+              const maxWidth = mainContainerRect.width - 100; // Ensure content area has at least 100px
+              newWidth = Math.max(minWidth, Math.min(newWidth, maxWidth));
+              navigationPanel.style.width = \`\${newWidth}px\`;
+            }
+
+            function stopResize() {
+              isResizing = false;
+              document.body.style.cursor = '';
+              document.body.style.userSelect = '';
+              document.removeEventListener('mousemove', handleMouseMove);
+              document.removeEventListener('mouseup', stopResize);
+            }
+          } else {
+            console.warn('Resizer or navigation panel not found.');
+          }
 
           // Load initial content after DOM is ready
           document.addEventListener('DOMContentLoaded', () => {
