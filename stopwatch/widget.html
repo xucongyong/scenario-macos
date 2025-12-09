@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      /* 半透明磨砂黑，专注感强 */
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(10px);
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      border-radius: 10px;
+      -webkit-app-region: drag;
+      /* 允许拖拽 */
+      overflow: hidden;
+    }
+
+    /* 时间显示 */
+    #timer {
+      font-size: 32px;
+      font-weight: 300;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+      font-variant-numeric: tabular-nums;
+      cursor: default;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      -webkit-app-region: no-drag;
+      /* 按钮区域不可拖拽 */
+    }
+
+    button {
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: rgba(255, 255, 255, 0.9);
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* 激活状态的高亮色 (多巴胺绿) */
+    .active-timer {
+      color: #6ee7b7;
+      text-shadow: 0 0 10px rgba(110, 231, 183, 0.3);
+    }
+
+    /* 关闭按钮 */
+    .close-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 16px;
+      height: 16px;
+      line-height: 14px;
+      text-align: center;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      padding: 0;
+      font-size: 14px;
+      -webkit-app-region: no-drag;
+      /* 允许点击 */
+    }
+
+    .close-btn:hover {
+      background: rgba(255, 0, 0, 0.5);
+      color: white;
+    }
+
+    .close-btn:hover {
+      background: rgba(255, 0, 0, 0.5);
+      color: white;
+    }
+
+    /* Reward Overlay */
+    #reward-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      /* Darker backdrop */
+      backdrop-filter: blur(5px);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    #reward-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .reward-title {
+      font-size: 14px;
+      color: #ddd;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .reward-time {
+      font-size: 36px;
+      font-weight: bold;
+      background: linear-gradient(45deg, #6ee7b7, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 5px 15px rgba(110, 231, 183, 0.3);
+    }
+
+    .reward-msg {
+      font-size: 12px;
+      color: #888;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Reward Overlay -->
+  <div id="reward-overlay">
+    <div class="reward-title">Focus Session Complete</div>
+    <div class="reward-time" id="reward-time-text">00m 00s</div>
+    <div class="reward-msg">Great job! Keep it up.</div>
+  </div>
+
+  <button class="close-btn" id="closeBtn">×</button>
+  <div id="debug-log"
+    style="position:fixed; bottom:0; left:0; color:red; font-size:10px; background:rgba(0,0,0,0.8); width:100%; pointer-events:none;">
+    Init...</div>
+  <div id="timer">00:00</div>
+  <div class="controls">
+    <button id="toggleBtn">Start</button>
+    <button id="finishBtn" style="color: #6ee7b7;">Finish</button>
+    <button id="resetBtn">Reset</button>
+  </div>
+
+  <script>
+    const timerDisplay = document.getElementById('timer');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const finishBtn = document.getElementById('finishBtn');
+    const closeBtn = document.getElementById('closeBtn');
+    const debugLog = document.getElementById('debug-log');
+
+    function log(msg) {
+      debugLog.innerText = msg;
+      console.log(msg);
+    }
+
+    try {
+      const { ipcRenderer } = require('electron');
+      window.electronAPI = {
+        action: (type, payload) => ipcRenderer.invoke('universal-action', { actionType: type, payload }),
+        onStopwatchUpdate: (cb) => ipcRenderer.on('stopwatch-update', (_, v) => cb(v))
+      };
+      log('Node Integration Active');
+    } catch (e) {
+      log('Require Failed: ' + e);
+      console.error(e);
+    }
+
+    log('Script Loaded');
+
+    // Check if API is loaded
+    if (!window.electronAPI) {
+      log('CRITICAL: API Missing');
+      alert('CRITICAL ERROR: electronAPI is missing. Preload script failed to load.');
+    } else {
+      log('API OK');
+    }
+
+    closeBtn.addEventListener('click', () => {
+      try {
+        window.electronAPI.action('stopwatch_close_widget').catch(err => log('Close Async Error: ' + err));
+      } catch (e) { log('Close Sync Error: ' + e); }
+    });
+
+    toggleBtn.addEventListener('click', () => {
+      try {
+        log('Toggle Clicked...');
+        window.electronAPI.action('stopwatch_toggle')
+          .then(() => log('Toggle Sent OK'))
+          .catch(err => log('Toggle Async Err: ' + err));
+      } catch (e) { log('Toggle Sync Err: ' + e); }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      try {
+        window.electronAPI.action('stopwatch_reset').catch(err => alert('Reset Async Error: ' + err));
+      } catch (e) { alert('Reset Sync Error: ' + e); }
+    });
+    finishBtn.addEventListener('click', async () => {
+      try {
+        const result = await window.electronAPI.action('finish_flow_session');
+        if (result && result.success) {
+          // 1. Trigger Confetti
+          confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#6ee7b7', '#3b82f6', '#ffffff']
+          });
+
+          // 2. Show Overlay
+          const overlay = document.getElementById('reward-overlay');
+          const timeText = document.getElementById('reward-time-text');
+          timeText.innerText = result.formattedDuration || "Done!";
+          overlay.classList.add('visible');
+
+          // 3. Auto-hide after 3 seconds
+          setTimeout(() => {
+            overlay.classList.remove('visible');
+          }, 3000);
+        }
+      } catch (e) {
+        log('Finish Error: ' + e);
+      }
+    });
+
+    window.electronAPI.onStopwatchUpdate((data) => {
+      timerDisplay.textContent = data.time;
+      toggleBtn.textContent = data.isRunning ? 'Pause' : 'Start';
+
+      if (data.isRunning) {
+        timerDisplay.classList.add('active-timer');
+      } else {
+        timerDisplay.classList.remove('active-timer');
+      }
+    });
+  </script>
+</body>
+
+</html>

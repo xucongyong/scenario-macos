@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "An Electron app to automate opening apps and URLs on macOS",
   "main": "main.js",
+  "type": "module",
   "scripts": {
     "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1",

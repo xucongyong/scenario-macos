@@ -114,19 +114,61 @@
     {
       "name": "Decision",
       "actions": [
-        { "type": "app", "name": "Trae", "display": 1,"fullscreen": true },
-        { "type": "app", "name": "Obsidian", "display": 1, "fullscreen": true },
-        { "type": "close_browsers" },
-        { "type": "url", "url": "https://www.xucongyong.com/decision", "display": 2, "layout": "left-half" },
-        { "type": "url", "url": "http://aistudio.google.com/prompts", "display": 2, "layout": "right-half" }
+        {
+          "type": "app",
+          "name": "Trae",
+          "display": 1,
+          "fullscreen": true
+        },
+        {
+          "type": "app",
+          "name": "Obsidian",
+          "display": 1,
+          "fullscreen": true
+        },
+        {
+          "type": "close_browsers"
+        },
+        {
+          "type": "url",
+          "url": "https://www.xucongyong.com/decision",
+          "display": 2,
+          "layout": "left-half"
+        },
+        {
+          "type": "url",
+          "url": "http://aistudio.google.com/prompts",
+          "display": 2,
+          "layout": "right-half"
+        }
       ]
     },
     {
       "name": "English",
       "actions": [
-        { "type": "app", "name": "Trae", "display": 1, "layout": "right-half" },
-        { "type": "close_browsers" },
-        { "type": "url", "url": "http://aistudio.google.com/prompts", "display": 2, "layout": "right-half" }
+        {
+          "type": "app",
+          "name": "Trae",
+          "display": 1,
+          "layout": "right-half"
+        },
+        {
+          "type": "close_browsers"
+        },
+        {
+          "type": "url",
+          "url": "http://aistudio.google.com/prompts",
+          "display": 2,
+          "layout": "right-half"
+        }
+      ]
+    },
+    {
+      "name": "Focus Timer",
+      "actions": [
+        {
+          "type": "open_stopwatch"
+        }
       ]
     }
   ]
